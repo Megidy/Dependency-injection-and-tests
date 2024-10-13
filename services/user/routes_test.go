@@ -20,7 +20,7 @@ func (m *mockUserStoreSignIn) GetUserByEmail(email string) (*types.User, error) 
 	return nil, fmt.Errorf("user not found")
 }
 
-func (m *mockUserStoreSignIn) GetUserById(id int) (*types.User, error) {
+func (m *mockUserStoreSignIn) GetUserById(id float64) (*types.User, error) {
 	return nil, nil
 }
 
@@ -94,7 +94,7 @@ func (m *mockUserStoreLogIn) GetUserByEmail(email string) (*types.User, error) {
 		Password:  hashedPassword,
 	}, nil
 }
-func (m *mockUserStoreLogIn) GetUserById(id int) (*types.User, error) {
+func (m *mockUserStoreLogIn) GetUserById(id float64) (*types.User, error) {
 	return nil, nil
 }
 

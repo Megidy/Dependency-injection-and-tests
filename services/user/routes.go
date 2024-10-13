@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/API/services/auth"
@@ -37,8 +38,8 @@ func (h *Handler) handleSignIn(c *gin.Context) {
 
 	}
 	_, err := h.store.GetUserByEmail(payload.Email)
-	if err != nil {
-		utils.HandleError(c, err, err.Error(), http.StatusBadRequest)
+	if err == nil {
+		utils.HandleError(c, err, "user is already created", http.StatusBadRequest)
 		return
 	}
 	hashedPassword, err := auth.HashPassword(payload.Password)
@@ -61,5 +62,36 @@ func (h *Handler) handleSignIn(c *gin.Context) {
 
 }
 func (h *Handler) handleLogIn(c *gin.Context) {
+	var payload types.LogInPayload
+	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
+		utils.HandleError(c, err, "failed to read body", http.StatusBadRequest)
+		return
+	}
+
+	if !strings.Contains(payload.Email, "@") {
+		utils.HandleError(c, nil, "failed to read body", http.StatusBadRequest)
+		return
+
+	}
+	user, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		utils.HandleError(c, err, "failed to get user", http.StatusInternalServerError)
+		return
+	}
+	if !auth.ComparePasswords(user.Password, []byte(payload.Password)) {
+		utils.HandleError(c, nil, "failed to compare password", http.StatusBadRequest)
+		return
+	}
+
+	//TODO : Create Separate Function
+	secret := []byte(os.Getenv("SECRET"))
+	token, err := auth.CreateJWT(secret, user.Id)
+	if err != nil {
+		utils.HandleError(c, err, "failed to create token", http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 
 }

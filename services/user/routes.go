@@ -90,6 +90,8 @@ func (h *Handler) handleLogIn(c *gin.Context) {
 		utils.HandleError(c, err, "failed to create token", http.StatusInternalServerError)
 		return
 	}
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", token, 3600*24*15, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})

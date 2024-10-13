@@ -38,7 +38,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	return u, nil
 }
 
-func (s *Store) GetUserById(id int) (*types.User, error) {
+func (s *Store) GetUserById(id float64) (*types.User, error) {
 	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -18,9 +17,5 @@ func InitDSN() Dsn {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return Dsn{
-		User:     os.Getenv("USER"),
-		Password: os.Getenv("PASSWORD"),
-		DBName:   os.Getenv("DBNAME"),
-	}
+	return Dsn{}
 }

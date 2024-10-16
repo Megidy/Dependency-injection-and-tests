@@ -5,13 +5,11 @@ import (
 	"log"
 
 	"github.com/API/cmd/api"
-	"github.com/API/config"
 	"github.com/API/db"
 )
 
 func main() {
-	dsn := config.InitDSN()
-	db, err := db.NewMySqlStorage(dsn.User + ":" + dsn.Password + "@/" + dsn.DBName)
+	db, err := db.NewMySqlStorage("root:password@tcp(mysql:3306)/api")
 	if err != nil {
 		log.Fatal(err)
 	}

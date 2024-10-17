@@ -5,10 +5,26 @@ type UserStore interface {
 	GetUserById(id float64) (*User, error)
 	CreateUser(user User) error
 }
+type Producer interface {
+	PushOrderToQueue(topic, producerPort string, message []byte) error
+}
+type Consumer interface {
+	ReceiveOrders()
+}
+
+// TODO : ADD GET ORDER
+type OrderStore interface {
+	GetOrder(order Order) (*Order, error)
+	CreateOrder(order Order) error
+}
 
 type ProductStore interface {
 	GetAllProducts() ([]*Product, error)
 	GetProductById(id int) (*Product, error)
+}
+
+type DepotStore interface {
+	UpdateOrderStatus(order Order) error
 }
 
 type Product struct {
@@ -16,14 +32,6 @@ type Product struct {
 	Name     string `json:"name"`
 	Quantity int    `json:"quantity"`
 	Price    int    `json:"price"`
-}
-
-type Order struct {
-	UserID  int
-	Product *Product
-}
-type OrderStore interface {
-	CreateOrder(Order) error
 }
 
 type User struct {
@@ -44,6 +52,13 @@ type SignInPayload struct {
 type LogInPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+// TODO : ADD STATUS
+type Order struct {
+	UserID  int
+	Product *Product
+	Status  string
 }
 
 type CreateOrderPayload struct {

@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type MockProducer struct{}
 type MockOrderStore struct{}
 type MockUserStore struct{}
 type MockProductStore struct{}
@@ -23,6 +24,10 @@ func (m *MockOrderStore) CreateOrder(order types.Order) error {
 	return nil
 }
 
+func (m *MockOrderStore) GetOrder(order types.Order) (*types.Order, error) {
+	return nil, nil
+
+}
 func (m *MockUserStore) GetUserById(id float64) (*types.User, error) {
 	return nil, nil
 }
@@ -58,11 +63,15 @@ func (m *MockProductStore) GetProductById(id int) (*types.Product, error) {
 	return nil, nil
 }
 
+func (m *MockProducer) PushOrderToQueue(topic, producerPort string, message []byte) error {
+	return nil
+}
 func TestCreateOrder(t *testing.T) {
+	newProducer := &MockProducer{}
 	orderStore := &MockOrderStore{}
 	productStore := &MockProductStore{}
 	userStore := &MockUserStore{}
-	orderHandler := NewHandler(orderStore, productStore, userStore)
+	orderHandler := NewHandler(orderStore, productStore, userStore, newProducer)
 
 	t.Run("Should pass if user payload is correct", func(t *testing.T) {
 

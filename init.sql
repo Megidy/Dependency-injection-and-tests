@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS products(
 
 CREATE TABLE IF NOT EXISTS orders(
     user_id INT ,
-    product_id INT 
+    product_id INT ,
+    status VARCHAR(255)
 );
  

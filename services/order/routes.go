@@ -1,6 +1,7 @@
 package order
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/API/services/auth"
@@ -9,17 +10,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	ProducerPort  string = "kafka:9092"
+	ProducerTopic string = "send_orders"
+)
+
 type Handler struct {
 	store        types.OrderStore
 	productStore types.ProductStore
 	userStore    types.UserStore
+	producer     types.Producer
 }
 
-func NewHandler(store types.OrderStore, productStore types.ProductStore, userStore types.UserStore) *Handler {
+func NewHandler(store types.OrderStore, productStore types.ProductStore, userStore types.UserStore, producer types.Producer) *Handler {
 	return &Handler{
 		store:        store,
 		productStore: productStore,
 		userStore:    userStore,
+		producer:     producer,
 	}
 }
 
@@ -52,6 +60,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	order = types.Order{
 		UserID:  user.(*types.User).Id,
 		Product: product,
+		Status:  "Pending",
 	}
 
 	err = h.store.CreateOrder(order)
@@ -59,4 +68,16 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		utils.HandleError(c, err, "failed to create new order", http.StatusInternalServerError)
 		return
 	}
+
+	orderInBytes, err := json.Marshal(order)
+	if err != nil {
+		utils.HandleError(c, err, "failed to marshal order", http.StatusInternalServerError)
+		return
+	}
+	err = h.producer.PushOrderToQueue(ProducerTopic, ProducerPort, orderInBytes)
+	if err != nil {
+		utils.HandleError(c, err, "failed to push order to queue", http.StatusInternalServerError)
+		return
+	}
+
 }

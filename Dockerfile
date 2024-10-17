@@ -10,7 +10,10 @@ RUN go mod download
 COPY . .
 
 # api
-RUN go build -o ./api ./cmd/main.go
+RUN go build -o ./api ./cmd/api/main.go
+
+# depot 
+RUN go build -o ./depot ./cmd/depot/main.go
 
 # tests
 FROM builder AS run-test-stage
@@ -19,7 +22,9 @@ FROM builder AS run-test-stage
 FROM alpine
 
 WORKDIR /
-
+# api build
 COPY --from=builder /app/api /api
+# depot build
+COPY --from=builder /app/depot /depot
 
 CMD ["/api"]

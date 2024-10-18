@@ -17,7 +17,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) UpdateOrderStatus(order types.Order) error {
-	_, err := s.db.Exec("update orders set status =?", order.Status)
+	_, err := s.db.Exec("update orders set status =?  where id =?", order.Status, order.Id)
 	if err != nil {
 		return err
 	}

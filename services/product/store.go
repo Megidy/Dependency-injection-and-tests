@@ -16,20 +16,20 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-func (s *Store) GetAllProducts() ([]*types.Product, error) {
+func (s *Store) GetAllProducts() ([]types.Product, error) {
 	rows, err := s.db.Query("SELECT * FROM products")
 	if err != nil {
 		return nil, err
 	}
 
-	products := make([]*types.Product, 0)
+	products := make([]types.Product, 0)
 	for rows.Next() {
 		p, err := scanRowsIntoProduct(rows)
 		if err != nil {
 			return nil, err
 		}
 
-		products = append(products, p)
+		products = append(products, *p)
 	}
 
 	return products, nil
@@ -41,8 +41,8 @@ func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	err := rows.Scan(
 		&product.Id,
 		&product.Name,
-		&product.Price,
 		&product.Quantity,
+		&product.Price,
 	)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 }
 
 func (s *Store) GetProductById(id int) (*types.Product, error) {
-	product := new(types.Product)
+	var product types.Product
 	row, err := s.db.Query("select * from products where id =?", id)
 	if err != nil {
 		return nil, err
@@ -64,5 +64,20 @@ func (s *Store) GetProductById(id int) (*types.Product, error) {
 		}
 	}
 
-	return product, nil
+	return &product, nil
+}
+
+func (s *Store) UpdateProductQuantity(id, orderQuantity, productQuantity int, action string) error {
+	if action == "dec" {
+		_, err := s.db.Exec("update products set quantity =? where id =?", productQuantity-orderQuantity, id)
+		if err != nil {
+			return err
+		}
+	} else if action == "inc" {
+		_, err := s.db.Exec("update products set quantity =? where id =?", productQuantity+orderQuantity, id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -18,8 +18,10 @@ CREATE TABLE IF NOT EXISTS products(
 );
 
 CREATE TABLE IF NOT EXISTS orders(
+    id VARCHAR(255),
     user_id INT ,
     product_id INT ,
+    quantity INT ,
     status VARCHAR(255)
 );
  

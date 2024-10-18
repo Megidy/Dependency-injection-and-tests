@@ -1,5 +1,7 @@
 package types
 
+import "github.com/google/uuid"
+
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserById(id float64) (*User, error)
@@ -14,13 +16,16 @@ type Consumer interface {
 
 // TODO : ADD GET ORDER
 type OrderStore interface {
-	GetOrder(order Order) (*Order, error)
+	GetAllUsersOrders(id int) ([]Order, error)
+	GetOrderByUniqueId(order Order) (Order, error)
+	GetOrderByUserId(order Order) (*Order, error)
 	CreateOrder(order Order) error
 }
 
 type ProductStore interface {
-	GetAllProducts() ([]*Product, error)
+	GetAllProducts() ([]Product, error)
 	GetProductById(id int) (*Product, error)
+	UpdateProductQuantity(id, orderQuantity, productQuantity int, action string) error
 }
 
 type DepotStore interface {
@@ -56,12 +61,16 @@ type LogInPayload struct {
 
 // TODO : ADD STATUS
 type Order struct {
-	UserID  int
-	Product *Product
-	Status  string
+	Id       uuid.UUID
+	UserID   int
+	Product  Product
+	Quantity int
+	Status   string
 }
-
-type CreateOrderPayload struct {
+type CreateOrder struct {
 	Id       int `json:"id"`
 	Quantity int `json:"quantity"`
+}
+type CreateOrderPayload struct {
+	Orders []*CreateOrder
 }

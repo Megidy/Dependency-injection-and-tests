@@ -80,7 +80,7 @@ func (c *KafkaConsumer) HandleOrder(order types.Order, wg *sync.WaitGroup) {
 		log.Println(err)
 	}
 	for i := 0; i < 50; i++ {
-		fmt.Println("order of user: ", order.UserID, " is ready for: ", i+1, "%")
+		fmt.Println("order", order.Id, " of user: ", order.UserID, " is ready for: ", i+1, "%")
 		time.Sleep(time.Second)
 	}
 	order.Status = "Ready to pickup"
@@ -88,6 +88,6 @@ func (c *KafkaConsumer) HandleOrder(order types.Order, wg *sync.WaitGroup) {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println("order of user ", order.UserID, " is ready!")
+	fmt.Println("order: ", order.Id, " of user ", order.UserID, " is ready!")
 
 }

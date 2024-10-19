@@ -37,6 +37,7 @@ func (h *Handler) RegisterRoutes(router gin.IRouter) {
 
 	router.POST("/order", auth.NewHandler(h.userStore).WithJWT, h.CreateOrder)
 	router.GET("/myorders", auth.NewHandler(h.userStore).WithJWT, h.GetMyOrders)
+	router.POST("/orders/take", auth.NewHandler(h.userStore).WithJWT, h.TakeOrders)
 }
 func (h *Handler) CreateOrder(c *gin.Context) {
 	user, _ := c.Get("user")
@@ -135,5 +136,39 @@ func (h *Handler) GetMyOrders(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"your orders": orders,
+	})
+}
+
+func (h *Handler) TakeOrders(c *gin.Context) {
+	var takeOrders types.TakeOrderPayload
+	var response []string
+	err := c.ShouldBindJSON(&takeOrders)
+	if err != nil {
+		utils.HandleError(c, err, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Println(takeOrders)
+
+	for _, order := range takeOrders.OrderId {
+		id, err := h.store.GetUUIDFromOrder(order)
+		if err != nil {
+			utils.HandleError(c, err, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if id != order {
+			utils.HandleError(c, nil, "no order with this id found", http.StatusBadRequest)
+			return
+		}
+		log.Println(order)
+		err = h.store.DeleteOrder(order)
+		if err != nil {
+			utils.HandleError(c, err, err.Error(), http.StatusBadRequest)
+			return
+		}
+		response = append(response, order)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Taken Orders": response,
 	})
 }

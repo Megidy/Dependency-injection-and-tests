@@ -20,6 +20,8 @@ type OrderStore interface {
 	GetOrderByUniqueId(order Order) (Order, error)
 	GetOrderByUserId(order Order) (*Order, error)
 	CreateOrder(order Order) error
+	DeleteOrder(orderId string) error
+	GetUUIDFromOrder(orderId string) (string, error)
 }
 
 type ProductStore interface {
@@ -61,11 +63,11 @@ type LogInPayload struct {
 
 // TODO : ADD STATUS
 type Order struct {
-	Id       uuid.UUID
-	UserID   int
-	Product  Product
-	Quantity int
-	Status   string
+	Id       uuid.UUID `json:"id"`
+	UserID   int       `json:"user_id"`
+	Product  Product   `json:"product"`
+	Quantity int       `json:"quantity"`
+	Status   string    `json:"status"`
 }
 type CreateOrder struct {
 	Id       int `json:"id"`
@@ -73,4 +75,8 @@ type CreateOrder struct {
 }
 type CreateOrderPayload struct {
 	Orders []*CreateOrder
+}
+
+type TakeOrderPayload struct {
+	OrderId []string `json:"orders"`
 }

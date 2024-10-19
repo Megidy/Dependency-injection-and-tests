@@ -12,11 +12,14 @@ import (
 type MockProductStore struct {
 }
 
-func (m *MockProductStore) GetAllProducts() ([]*types.Product, error) {
+func (m *MockProductStore) GetAllProducts() ([]types.Product, error) {
 	return nil, nil
 }
 func (m *MockProductStore) GetProductById(id int) (*types.Product, error) {
 	return nil, nil
+}
+func (m *MockProductStore) UpdateProductQuantity(id, orderQuantity, productQuantity int, action string) error {
+	return nil
 }
 
 func TestGetAllProducts(t *testing.T) {

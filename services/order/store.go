@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/API/types"
@@ -75,4 +76,34 @@ func (s *Store) GetAllUsersOrders(id int) ([]types.Order, error) {
 	}
 	log.Println("returned ")
 	return orders, nil
+}
+
+func (s *Store) DeleteOrder(orderId string) error {
+	log.Println(orderId)
+
+	_, err := s.db.Exec("delete from orders where id=?", orderId)
+	log.Println(err)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) GetUUIDFromOrder(orderId string) (string, error) {
+	row, err := s.db.Query("select id,status from orders where id =?", orderId)
+	if err != nil {
+		return "", err
+	}
+	var id, status string
+	for row.Next() {
+		err = row.Scan(&id, &status)
+		if status != "Ready to pickup" {
+			return "", fmt.Errorf("order is not ready yet")
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	return id, nil
+
 }
